@@ -10,10 +10,10 @@ beforeEach(() => {
   app = createApp(openDatabase(':memory:'));
 });
 
-async function signUp(email = 'ana@teste.com') {
+async function signUp(email = 'ana@gmail.com') {
   const res = await request(app)
     .post('/api/auth/register')
-    .send({ name: 'Ana', email, password: 'segredo123' });
+    .send({ name: 'Ana', email, password: 'Segredo#2026' });
   return { token: res.body.token as string, auth: { Authorization: `Bearer ${res.body.token}` } };
 }
 
@@ -26,28 +26,35 @@ describe('autenticação', () => {
   it('cadastra, faz login e retorna o usuário logado', async () => {
     const reg = await request(app)
       .post('/api/auth/register')
-      .send({ name: 'Ana', email: 'ANA@teste.com', password: 'segredo123' });
+      .send({ name: 'Ana', email: 'ANA@gmail.com', password: 'Segredo#2026' });
     expect(reg.status).toBe(201);
-    expect(reg.body.user).toEqual({ id: 1, name: 'Ana', email: 'ana@teste.com' });
+    expect(reg.body.user).toEqual({ id: 1, name: 'Ana', email: 'ana@gmail.com' });
 
-    const login = await request(app).post('/api/auth/login').send({ email: 'ana@teste.com', password: 'segredo123' });
+    const login = await request(app).post('/api/auth/login').send({ email: 'ana@gmail.com', password: 'Segredo#2026' });
     expect(login.status).toBe(200);
 
     const me = await request(app).get('/api/auth/me').set('Authorization', `Bearer ${login.body.token}`);
-    expect(me.body.user.email).toBe('ana@teste.com');
+    expect(me.body.user.email).toBe('ana@gmail.com');
   });
 
   it('rejeita e-mail duplicado, senha errada e dados inválidos', async () => {
     await signUp();
-    const dup = await request(app).post('/api/auth/register').send({ name: 'Ana', email: 'ana@teste.com', password: '123456' });
+    const dup = await request(app).post('/api/auth/register').send({ name: 'Ana', email: 'ana@gmail.com', password: 'Outra#Senha99' });
     expect(dup.status).toBe(409);
 
-    const wrong = await request(app).post('/api/auth/login').send({ email: 'ana@teste.com', password: 'errada' });
+    const wrong = await request(app).post('/api/auth/login').send({ email: 'ana@gmail.com', password: 'errada' });
     expect(wrong.status).toBe(401);
 
     const invalid = await request(app).post('/api/auth/register').send({ name: 'A', email: 'x', password: '1' });
     expect(invalid.status).toBe(400);
     expect(Object.keys(invalid.body.details)).toEqual(['name', 'email', 'password']);
+
+    const register = (email: string, password: string) =>
+      request(app).post('/api/auth/register').send({ name: 'Caio', email, password });
+    expect((await register('caio@nmdiosa.com', 'Segredo#2026')).body.error).toContain('provedor comum');
+    expect((await register('caio@gmail.com', 'segredo123')).body.error).toContain('maiúscula');
+    expect((await register('caio@gmail.com', 'Curta#1')).body.error).toContain('10 caracteres');
+    expect((await register('caio@gmail.com', 'Segredo#2026')).status).toBe(201);
   });
 
   it('bloqueia rotas protegidas sem token', async () => {
@@ -68,8 +75,8 @@ describe('quadros', () => {
   });
 
   it('isola os dados entre usuários', async () => {
-    const ana = await signUp('ana@teste.com');
-    const bia = await signUp('bia@teste.com');
+    const ana = await signUp('ana@gmail.com');
+    const bia = await signUp('bia@gmail.com');
     const board = await createBoard(ana.auth);
 
     expect((await request(app).get(`/api/boards/${board.id}`).set(bia.auth)).status).toBe(404);
