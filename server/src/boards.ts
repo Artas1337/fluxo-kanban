@@ -13,6 +13,7 @@ export interface Card {
   description: string;
   priority: 'low' | 'medium' | 'high';
   position: number;
+  due_date: string | null;
   created_at: string;
 }
 
@@ -29,7 +30,11 @@ const cardCreateSchema = z.object({
   description: z.string().max(2000).optional(),
   priority: priority.optional(),
 });
-const cardUpdateSchema = cardCreateSchema.partial();
+const dueDate = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, 'Use o formato AAAA-MM-DD')
+  .refine((s) => new Date(s).toISOString().startsWith(s), 'Data inválida');
+const cardUpdateSchema = cardCreateSchema.partial().extend({ dueDate: dueDate.nullable().optional() });
 const moveSchema = z.object({ columnId: id, position: z.number().int().min(0) });
 
 export function boardsRouter(db: DB) {
@@ -176,11 +181,13 @@ export function boardsRouter(db: DB) {
   router.patch('/cards/:id', (req, res) => {
     const card = findCard(id.parse(req.params.id), req.userId);
     const data = cardUpdateSchema.parse(req.body);
-    const merged = { ...card, ...data };
-    db.prepare('UPDATE cards SET title = ?, description = ?, priority = ? WHERE id = ?').run(
+    const { dueDate, ...rest } = data;
+    const merged = { ...card, ...rest, due_date: dueDate === undefined ? card.due_date : dueDate };
+    db.prepare('UPDATE cards SET title = ?, description = ?, priority = ?, due_date = ? WHERE id = ?').run(
       merged.title,
       merged.description,
       merged.priority,
+      merged.due_date,
       card.id,
     );
     res.json(findCard(card.id, req.userId));

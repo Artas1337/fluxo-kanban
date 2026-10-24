@@ -135,6 +135,16 @@ describe('cartões', () => {
     expect(await titlesIn(1)).toEqual(['B0', 'A1']);
   });
 
+  it('define, mantém e remove a data de entrega', async () => {
+    const { auth, cards } = await setup();
+    const url = `/api/cards/${cards[0].id}`;
+    expect((await request(app).patch(url).set(auth).send({ dueDate: '2026-11-20' })).body.due_date).toBe('2026-11-20');
+    // editar outro campo não apaga a data
+    expect((await request(app).patch(url).set(auth).send({ title: 'A2' })).body.due_date).toBe('2026-11-20');
+    expect((await request(app).patch(url).set(auth).send({ dueDate: null })).body.due_date).toBeNull();
+    expect((await request(app).patch(url).set(auth).send({ dueDate: '2026-02-30' })).status).toBe(400);
+  });
+
   it('reorganiza posições ao excluir', async () => {
     const { auth, cards, titlesIn } = await setup();
     await request(app).delete(`/api/cards/${cards[0].id}`).set(auth);

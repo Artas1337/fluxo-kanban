@@ -20,6 +20,7 @@ import { CardView } from '../components/CardItem';
 import { CardModal } from '../components/CardModal';
 import { EditableTitle } from '../components/EditableTitle';
 import { InlineForm } from '../components/InlineForm';
+import { dueStatus } from '../due';
 import { PRIORITY_LABEL, type Board, type Card, type Column, type Priority } from '../types';
 
 type DndId = string | number;
@@ -67,7 +68,13 @@ export function BoardPage() {
   const stats = useMemo(() => {
     const all = board?.columns.flatMap((c) => c.cards) ?? [];
     const last = board?.columns.at(-1);
-    return { total: all.length, done: last?.cards.length ?? 0, high: all.filter((c) => c.priority === 'high').length };
+    const pending = all.filter((c) => c.column_id !== last?.id);
+    return {
+      total: all.length,
+      done: last?.cards.length ?? 0,
+      high: all.filter((c) => c.priority === 'high').length,
+      late: pending.filter((c) => c.due_date && dueStatus(c.due_date).tone === 'late').length,
+    };
   }, [board]);
 
   if (error) return <><Topbar /><p className="form-error page-error">{error}</p></>;
@@ -195,6 +202,7 @@ export function BoardPage() {
           <span><strong>{stats.total}</strong> cartões</span>
           <span><strong>{stats.done}</strong> concluídos</span>
           <span className="stat--high"><strong>{stats.high}</strong> alta prioridade</span>
+          {stats.late > 0 && <span className="stat--late"><strong>{stats.late}</strong> atrasado(s)</span>}
         </div>
         <div className="toolbar__filters">
           <input

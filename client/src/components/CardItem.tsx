@@ -1,6 +1,7 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { PRIORITY_LABEL, type Card } from '../types';
+import { dueStatus } from '../due';
 
 interface Props {
   card: Card;
@@ -8,10 +9,23 @@ interface Props {
   disabled?: boolean;
 }
 
+function DueChip({ date }: { date: string }) {
+  const { label, tone } = dueStatus(date);
+  return (
+    <span className={`due due--${tone}`} title={`Entrega: ${date.split('-').reverse().join('/')}`}>
+      {tone === 'late' ? '⚠ ' : ''}
+      {label}
+    </span>
+  );
+}
+
 export function CardView({ card, overlay }: { card: Card; overlay?: boolean }) {
   return (
     <div className={`card ${overlay ? 'card--overlay' : ''}`}>
-      <span className={`badge badge--${card.priority}`}>{PRIORITY_LABEL[card.priority]}</span>
+      <div className="card__meta">
+        <span className={`badge badge--${card.priority}`}>{PRIORITY_LABEL[card.priority]}</span>
+        {card.due_date && <DueChip date={card.due_date} />}
+      </div>
       <p className="card__title">{card.title}</p>
       {card.description && (
         <p className="card__desc">{card.description}</p>

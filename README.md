@@ -12,6 +12,7 @@ Gerenciador de tarefas no estilo Kanban: quadros, colunas e cartões com **arras
 - Quadros com colunas padrão (*A fazer*, *Em andamento*, *Concluído*)
 - **Drag and drop** de cartões entre colunas e dentro da mesma coluna (mouse, toque e teclado)
 - Prioridade (baixa, média, alta), descrição e data de criação em cada cartão
+- **Data de entrega** com selo de prazo (hoje, amanhã, atrasado) e contador de cartões atrasados
 - Busca e filtro por prioridade
 - Renomear quadros e colunas com duplo clique
 - Progresso de cada quadro (percentual de cartões na última coluna)
@@ -91,7 +92,7 @@ Variáveis de ambiente (opcionais): `API_PORT` (padrão `3333`), `DB_FILE` (padr
 ## Próximos passos
 
 - Reordenar colunas com drag and drop
-- Etiquetas e data de entrega nos cartões
+- Etiquetas coloridas nos cartões
 - Compartilhar quadros com outros usuários
 - Deploy (Render/Railway para a API, Vercel para o frontend)
 

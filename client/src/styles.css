@@ -280,6 +280,17 @@ textarea { resize: vertical; }
 .badge--medium { background: var(--medium-soft); color: var(--medium); }
 .badge--high { background: var(--high-soft); color: var(--high); }
 
+.card__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.due {
+  padding: 1px 8px; border-radius: 99px; font-size: 11px; font-weight: 700;
+  background: var(--surface-2); color: var(--muted);
+}
+.due--soon { background: var(--medium-soft); color: var(--medium); }
+.due--late { background: var(--high-soft); color: var(--high); }
+.stat--late strong { color: var(--high); }
+.due-field { display: flex; gap: 8px; align-items: center; }
+.due-field input { width: auto; flex: 1; }
+
 /* ---------- Modal ---------- */
 .modal-backdrop {
   position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px;

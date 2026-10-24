@@ -13,6 +13,7 @@ export interface Card {
   description: string;
   priority: Priority;
   position: number;
+  due_date: string | null;
   created_at: string;
 }
 

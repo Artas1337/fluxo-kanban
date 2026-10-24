@@ -5,7 +5,7 @@ interface Props {
   card: Card;
   columnTitle: string;
   onClose: () => void;
-  onSave: (data: { title: string; description: string; priority: Priority }) => Promise<void>;
+  onSave: (data: { title: string; description: string; priority: Priority; dueDate: string | null }) => Promise<void>;
   onDelete: () => Promise<void>;
 }
 
@@ -15,6 +15,7 @@ export function CardModal({ card, columnTitle, onClose, onSave, onDelete }: Prop
   const [title, setTitle] = useState(card.title);
   const [description, setDescription] = useState(card.description);
   const [priority, setPriority] = useState<Priority>(card.priority);
+  const [dueDate, setDueDate] = useState(card.due_date ?? '');
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -27,7 +28,7 @@ export function CardModal({ card, columnTitle, onClose, onSave, onDelete }: Prop
     e.preventDefault();
     if (!title.trim()) return;
     setBusy(true);
-    await onSave({ title: title.trim(), description, priority });
+    await onSave({ title: title.trim(), description, priority, dueDate: dueDate || null });
     onClose();
   };
 
@@ -70,6 +71,16 @@ export function CardModal({ card, columnTitle, onClose, onSave, onDelete }: Prop
             </label>
           ))}
         </fieldset>
+
+        <div className="field">
+          <label htmlFor="due-date">Data de entrega</label>
+          <div className="due-field">
+            <input id="due-date" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+            {dueDate && (
+              <button type="button" className="btn btn--ghost btn--sm" onClick={() => setDueDate('')}>Remover</button>
+            )}
+          </div>
+        </div>
 
         <label className="field">
           Descrição

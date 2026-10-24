@@ -34,6 +34,7 @@ const SCHEMA = `
     description TEXT    NOT NULL DEFAULT '',
     priority    TEXT    NOT NULL DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high')),
     position    INTEGER NOT NULL,
+    due_date    TEXT,
     created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
   );
 
@@ -45,7 +46,16 @@ const SCHEMA = `
 export function openDatabase(file = ':memory:'): DB {
   const db = new DatabaseSync(file);
   db.exec(SCHEMA);
+  migrate(db);
   return db;
+}
+
+/** Atualiza bancos criados por versões anteriores. */
+function migrate(db: DB) {
+  const cols = db.prepare('PRAGMA table_info(cards)').all() as { name: string }[];
+  if (!cols.some((c) => c.name === 'due_date')) {
+    db.exec('ALTER TABLE cards ADD COLUMN due_date TEXT');
+  }
 }
 
 /** Executa `fn` dentro de uma transação; faz rollback se lançar erro. */

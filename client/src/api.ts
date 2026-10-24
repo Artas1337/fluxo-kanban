@@ -79,7 +79,10 @@ export const api = {
   deleteColumn: (id: number) => request<void>('DELETE', `/columns/${id}`),
 
   createCard: (columnId: number, title: string) => request<Card>('POST', `/columns/${columnId}/cards`, { title }),
-  updateCard: (id: number, data: Partial<{ title: string; description: string; priority: Priority }>) =>
+  updateCard: (
+    id: number,
+    data: Partial<{ title: string; description: string; priority: Priority; dueDate: string | null }>,
+  ) =>
     request<Card>('PATCH', `/cards/${id}`, data),
   deleteCard: (id: number) => request<void>('DELETE', `/cards/${id}`),
   moveCard: (id: number, columnId: number, position: number) =>
