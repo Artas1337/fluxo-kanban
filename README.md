@@ -96,6 +96,10 @@ Variáveis de ambiente (opcionais): `API_PORT` (padrão `3333`), `DB_FILE` (padr
 - Compartilhar quadros com outros usuários
 - Deploy (Render/Railway para a API, Vercel para o frontend)
 
+## Licença
+
+MIT — veja [LICENSE](LICENSE).
+
 ---
 
 Feito por **Arthur Martins** · [LinkedIn](https://linkedin.com/in/arthur-martins-2547553b6) · [GitHub](https://github.com/Artas1337)
